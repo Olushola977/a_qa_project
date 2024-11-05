@@ -25,7 +25,7 @@ jobs:
           npm run test:api
 
       - name: Upload API Report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: api-report
           path: reports/api-report

@@ -1,57 +1,41 @@
-const { test, expect } = require('@playwright/test');
-
-// test.use({
-//     baseURL: "https://www.saucedemo.com"
-// });
+import { test, expect } from '@playwright/test';
+import { userData } from '../../data/userData';
+import { getProductTitles, sortProducts } from '../../helpers/functions/product';
+import { loginPage } from '../../pages/loginpage';
+import { productsPage } from '../../pages/productspage';
 
 test.describe("Items Sorting Test", () => {
-    const userData = {
-        username: "standard_user",
-        password: "secret_sauce"
-    };
 
     test('Verify items are sorted', async ({ page }) => {
+        // Go to website and Log in. 
         await page.goto("/");
-        await page.getByTestId("username").fill(userData.username);
-        await page.getByTestId("password").fill(userData.password);
-        await page.getByTestId("login-button").click();
+        await loginPage(page).fillLoginFormAndSubmit(userData.username, userData.password)
 
-        // Wait for initial product list to load
-        await page.waitForSelector('[data-test="inventory-item-name"]');
+        // wait for initial product list to load
+        await productsPage(page).productList().waitFor()
 
         // get initial list of products
-        const productList = page.locator('[data-test="inventory-item-name"]');
+        const productList = productsPage(page).productList();
 
-        const productsCount = await productList.count();
-        const productTitles = [];
-        for (let i = 0; i < productsCount; i++) {
-            const title = await productList.nth(i).textContent();
-            if (title) productTitles.push(title.trim());
-        }
-
+        const productTitles = await getProductTitles(productList, await productList.count());
         console.log('Initial Product Titles:', productTitles);
 
-        // sort the titles alphabetically and compare
-        const sortedProductTitles = [...productTitles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+        // Verify that the items are sorted by Name ( A -> Z ).
+        const sortedProductTitles = await sortProducts(productTitles)
         expect(productTitles).toEqual(sortedProductTitles);
 
-        // change sorting to inverse
-        await page.getByTestId("product-sort-container").selectOption('za');
+        // Change the sorting to Name ( Z -> A). 
+        await productsPage(page).productFilter().selectOption('za');
 
         // wait for the page to update to reflect the inverse sorting
         await page.waitForTimeout(1000);
 
         // get the new sorted list
-        const inverseProductTitles = [];
-        for (let i = 0; i < productsCount; i++) {
-            const title = await productList.nth(i).textContent();
-            if (title) inverseProductTitles.push(title.trim());
-        }
-
+        const inverseProductTitles = await getProductTitles(productList, await productList.count());
         console.log('Inverse Product Titles:', inverseProductTitles);
 
-        // sort inverse titles for comparison
-        const sortedInverseProductTitles = [...inverseProductTitles].sort((a, b) => b.localeCompare(a, undefined, { sensitivity: "base" }));
+        // Verify that the items are sorted correctly.
+        const sortedInverseProductTitles = await sortProducts(inverseProductTitles, "inverse");
         expect(inverseProductTitles).toEqual(sortedInverseProductTitles);
     });
 });

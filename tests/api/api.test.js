@@ -1,5 +1,5 @@
-const { test, expect } = require('@playwright/test');
-const { postSchema } = require('../../schemas/post');
+import { test, expect } from '@playwright/test';
+import { postSchema, postsSchema } from '../../schemas/post';
 const Ajv = require('ajv');
 
 test.describe.serial("End to End test for posts", () => {
@@ -8,11 +8,16 @@ test.describe.serial("End to End test for posts", () => {
     let title = "Edited Title"
     const ajv = new Ajv();
 
-    test('Get Post Count', async ({ request }) => {
+    test('Get Posts Count', async ({ request }) => {
         const postsResponse = await request.get(`/posts`);
         expect(postsResponse.ok()).toBeTruthy();
+        expect(postsResponse.status(), "Status should be 200").toBe(200);
         const posts = await postsResponse.json()
         totalPosts = await posts.length
+
+        const validate = ajv.compile(postsSchema);
+        const valid = validate(posts);
+        expect(valid, "Response schema is valid").toBe(true);
     });
 
     test('Create a Post', async ({ request }) => {
@@ -34,7 +39,7 @@ test.describe.serial("End to End test for posts", () => {
 
         const validate = ajv.compile(postSchema);
         const valid = validate(newPost);
-        expect(valid, "Validate Response Schema").toBe(true);
+        expect(valid, "Response schema is valid").toBe(true);
 
         newPostId = await newPost.id
     });
@@ -62,7 +67,7 @@ test.describe.serial("End to End test for posts", () => {
 
         const validate = ajv.compile(postSchema);
         const valid = validate(post);
-        expect(valid, "Validate Response Schema").toBe(true);
+        expect(valid, "Response schema is valid").toBe(true);
 
         expect(post.title, "Title is updated successfully").toEqual(`${title}`)
     });
@@ -70,6 +75,7 @@ test.describe.serial("End to End test for posts", () => {
     test('Delete a Post', async ({ request }) => {
         const deletedPostResponse = await request.delete(`/posts/100`);
         expect(deletedPostResponse.ok()).toBeTruthy();
+        expect(deletedPostResponse.status(), "Status should be 200").toBe(200);
         const deletedPost = await deletedPostResponse.json()
         expect(deletedPost).toEqual({})
 
@@ -78,6 +84,6 @@ test.describe.serial("End to End test for posts", () => {
         expect(postsResponse.ok()).toBeTruthy();
         const posts = await postsResponse.json()
         console.log(posts.length)
-        expect(posts.length).toEqual(totalPosts)
+        expect(posts.length, "Posts count is 100").toEqual(totalPosts)
     });
 })

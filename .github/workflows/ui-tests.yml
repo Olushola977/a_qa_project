@@ -1,0 +1,31 @@
+name: UI Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ui_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run UI tests
+        run: |
+          npm run test:ui
+
+      - name: Upload UI Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: ui-report
+          path: reports/ui-report

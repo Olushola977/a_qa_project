@@ -12,7 +12,7 @@ test.describe("Items Sorting Test", () => {
         await loginPage(page).fillLoginFormAndSubmit(userData.username, userData.password)
 
         // wait for initial product list to load
-        await productsPage(page).productList().waitFor()
+        await productsPage(page).productList().first().waitFor()
 
         // get initial list of products
         const productList = productsPage(page).productList();

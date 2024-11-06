@@ -44,15 +44,30 @@ The project is structured to separate API and UI tests:
 
 ```plaintext
 .
-├── api-tests/
-│   ├── example.api.test.js       # Example API test file
-│   └── ...                       # Other API test files
-├── ui-tests/
-│   ├── example.ui.test.js        # Example UI test file
-│   └── ...                       # Other UI test files
-├── playwright.config.js          # Playwright configuration
-├── package.json
-└── README.md
+├── .github/                      # GitHub Actions or workflows
+│   └── ...                       # Workflow files for CI/CD
+├── data/                         # Data files or configuration
+│   └── userData.js               # User data for tests
+├── helpers/                      # Helper functions and utilities
+│   ├── functions/
+│   │   └── product.js            # Product-related helper functions
+│   └── ...                       # Other helper files
+├── pages/                        # Page Object Model (POM) files for UI testing
+│   ├── loginpage.js              # Login page object
+│   └── productspage.js           # Products page object
+├── schemas/                      # JSON schema files for API response validation
+│   └── post.js                   # JSON schema for post-related API responses
+├── tests/                        # All test files
+│   ├── api-tests/                # API test cases
+│   │   └── example.api.test.js   # Example API test file
+│   ├── ui-tests/                 # UI test cases
+│   │   └── example.ui.test.js    # Example UI test file
+├── .gitignore                    # Git ignore file
+├── package.json                  # Project dependencies and scripts
+├── package-lock.json             # Lock file for project dependencies
+├── playwright.config.js          # Playwright configuration file
+└── README.md                     # Project documentation
+
 ```
 
 - `api-tests/`: Contains all API test files.
@@ -65,12 +80,12 @@ The project is structured to separate API and UI tests:
 
 1. **Run API Tests**:
    ```bash
-   npx playwright test --project='API Tests' --reporter=html --output=reports/api-report
+   npm run test:api
    ```
 
 2. **Run UI Tests**:
    ```bash
-   npx playwright test --project='UI Tests' --reporter=html --output=reports/ui-report
+   npm run test:ui
    ```
 
 Reports will be generated in the `playwright-report` directory for both test types.
